@@ -1,0 +1,71 @@
+/* Design tokens. Values follow the design brief; colors that failed WCAG AA
+   (4.5:1 for text) on some surface were adjusted, with the brief's value noted.
+   --accent is used for fills (buttons); --accent-text for accent-colored text. */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f1f4f5;
+  --surface: #ffffff;
+  --elevated: #f8fafb;
+  --ink: #202b32;
+  --ink-2: #56646b;          /* brief: #64747D (3.7:1 on highlight) */
+  --line: #dce3e7;
+  --line-strong: #888c8e;    /* form control borders: 3:1 */
+  --accent: #477b96;         /* fills: white text on it is 4.6:1 */
+  --accent-text: #3b677d;    /* brief accent as text: 3.5:1, darkened */
+  --accent-hover: #315e76;
+  --accent-ink: #ffffff;
+  --soft: #e2edf2;
+  --hl: #d3e3ea;
+  --danger: #9d4745;         /* brief: #C85B58 */
+  --ok: #3e6a57;             /* brief: #528B72 */
+  --warn: #7e5b2c;           /* brief: #C18B43 */
+  --focus: #315e76;
+
+  --shadow-pop: 0 1px 2px rgba(20, 33, 42, 0.06), 0 12px 32px rgba(20, 33, 42, 0.12);
+  --skeleton: #e2e9ec;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #141c22;
+  --surface: #1c272f;
+  --elevated: #25333c;
+  --ink: #eaf0f3;
+  --ink-2: #acb9c0;          /* brief: #A1B0B8 (4.2:1 on highlight) */
+  --line: #34444e;
+  --line-strong: #66727a;
+  --accent: #83b4cb;         /* fills: dark text on it is 7.3:1 */
+  --accent-text: #91bdd1;    /* brief: #83B4CB (4.2:1 on highlight) */
+  --accent-hover: #a0c8da;
+  --accent-ink: #14212a;
+  --soft: #253b48;
+  --hl: #304a59;
+  --danger: #eba5a0;         /* brief: #E27D77 */
+  --ok: #8fc2a7;             /* brief: #7EB99A */
+  --warn: #e0b16d;
+  --focus: #a0c8da;
+
+  --shadow-pop: 0 12px 36px rgba(0, 0, 0, 0.45);
+  --skeleton: #22303a;
+}
+
+:root {
+  --font: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Text on photographs is always light, whatever the theme. */
+  --on-photo: #ffffff;
+  --on-photo-2: rgba(255, 255, 255, 0.86);
+  --scrim: 12, 20, 26; /* rgb of the readability overlay */
+
+  --r-sm: 8px;
+  --r: 14px;
+  --r-lg: 22px;
+  --pill: 999px;
+
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --fast: 150ms;
+}

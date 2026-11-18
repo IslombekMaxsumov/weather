@@ -1,0 +1,130 @@
+/* Page layout, mobile first.
+   < 760px   compact header, search on its own row, photo edge to edge
+   >= 760px  one-row header, framed photo
+   >= 1100px conditions and 5-day forecast side by side */
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ---------- header ---------- */
+
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "brand actions"
+    "search search";
+  align-items: center;
+  gap: 10px 12px;
+  padding: 12px 0 14px;
+}
+.wordmark {
+  grid-area: brand;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.wordmark svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: var(--accent-text);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.header-search {
+  grid-area: search;
+  min-width: 0;
+}
+.header-actions {
+  grid-area: actions;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.header-actions .segmented {
+  margin: 0 4px;
+}
+
+/* ---------- main sections ---------- */
+
+.section {
+  margin-top: 36px;
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.lower {
+  display: grid;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  margin-top: 56px;
+  padding: 22px 0 40px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+/* Phones: 16px text in the field stops iOS from zooming in on focus. */
+@media (max-width: 759px) {
+  .search input {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 760px) {
+  .container {
+    padding: 0 32px;
+  }
+  .header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "brand search actions";
+    gap: 24px;
+    padding: 18px 0 22px;
+  }
+  .header-search {
+    max-width: 520px;
+    width: 100%;
+    justify-self: center;
+  }
+  .section {
+    margin-top: 48px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .container {
+    padding: 0 40px;
+  }
+  .lower {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 64px;
+  }
+}
