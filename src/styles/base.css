@@ -47,14 +47,14 @@ a:hover {
 }
 
 /* Theme switch: colors ease over 180 ms instead of snapping. */
-body, .panel, .tile, .header, .search input, .search-panel, .tool-btn, .segmented, .banner, .modal {
+body, .sheet, .cond, .search-panel, .tool-btn, .segmented, .banner {
   transition:
     background-color var(--t-theme) var(--ease),
     border-color var(--t-theme) var(--ease),
     color var(--t-theme) var(--ease);
 }
 
-/* Numbers: IBM Plex Mono with equal-width digits, so values line up. */
+/* Numbers: equal-width digits, so values line up. */
 .mono, .num {
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;

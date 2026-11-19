@@ -1,191 +1,182 @@
 /* Page layout, mobile first.
-   < 768px   header on two rows (search below), everything in one column
-   >= 768px  one-row header, conditions in 3 columns
-   >= 1024px current weather in two columns: reading 58% | photo 42%
-   >= 1200px conditions and 5-day forecast side by side */
+   The sky (sky.css) is fixed behind everything. Header and the current reading
+   sit on it in white; the forecast "sheet" scrolls up over it.
+   < 768px   header on two rows (search + location below), one column
+   >= 768px  one-row header, reading and today's facts side by side
+   >= 1024px conditions + sun on the left, 5-day forecast on the right */
+
+.app {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* the sheet reaches the bottom even on short pages */
+}
+.app > main {
+  display: flex;
+  flex-direction: column;
+}
 
 .container {
   width: 100%;
-  max-width: 1360px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* Everything on the sky: white text, raised above the fixed sky layer. */
+.on-sky {
+  position: relative;
+  z-index: 1;
+  color: var(--on-sky);
+  text-shadow: 0 1px 2px rgba(0, 10, 25, 0.18);
 }
 
 /* ---------- header ---------- */
 
 .header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   grid-template-areas:
-    "brand actions"
-    "search search";
+    "brand  lang   theme"
+    "search search locate";
   align-items: center;
-  gap: 10px 12px;
-  padding: 12px 0 16px;
-  border-bottom: 1px solid var(--line);
+  gap: 10px 8px;
+  padding: 14px 0 6px;
 }
+.header-actions {
+  display: contents;
+}
+.header-actions > :first-child { grid-area: locate; }
+.header-actions > .lang-switch { grid-area: lang; }
+.header-actions > :last-child { grid-area: theme; }
 .wordmark {
   grid-area: brand;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 .wordmark svg {
-  width: 30px;
-  height: 30px;
-}
-.wordmark-tile {
-  fill: var(--accent);
-}
-.wordmark-trace {
+  width: 26px;
+  height: 26px;
   fill: none;
-  stroke: var(--accent-ink);
-  stroke-width: 2.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.wordmark-base {
-  stroke: var(--highlight);
-  stroke-width: 2.4;
+  stroke: var(--on-sky);
+  stroke-width: 2;
   stroke-linecap: round;
 }
-.wordmark-text {
-  display: grid;
-  line-height: 1.1;
-  min-width: 0;
-}
-.wordmark-name {
-  font-family: var(--mono);
-  font-size: 17px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-}
-.wordmark-tagline {
-  overflow: hidden;
-  color: var(--ink-2);
-  font-size: 11px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.wordmark svg path:first-child {
+  stroke: var(--sun);
 }
 .header-search {
   grid-area: search;
   min-width: 0;
 }
-.header-actions {
-  grid-area: actions;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+
+/* ---------- current reading on the sky ---------- */
+
+.hero-area {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-height: clamp(380px, 56vh, 560px);
+  padding-block: 18px 64px;
 }
 
-/* ---------- dashboard ---------- */
+/* ---------- the sheet ---------- */
 
-.dashboard,
-.skeleton-dashboard {
+.sheet {
+  position: relative;
+  z-index: 1;
+  background: var(--bg);
+  color: var(--ink);
+}
+main > .sheet,
+.sheet-end.is-first {
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+  box-shadow: var(--sheet-shadow);
+}
+.sheet-inner {
   display: grid;
-  gap: 20px;
-  padding-top: 20px;
+  gap: 32px;
+  padding-block: 26px 8px;
 }
 .lower {
   display: grid;
-  gap: 20px;
+  gap: 32px;
+}
+.details-col {
+  display: grid;
+  gap: 32px;
+  min-width: 0;
 }
 
+.sheet-end {
+  flex: 1;
+  padding-top: 32px; /* padding, not the footer margin, so no sky shows through */
+}
 .footer {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: 4px 24px;
-  margin-top: 36px;
-  padding: 16px 0 32px;
+  padding-block: 16px 32px;
   border-top: 1px solid var(--line);
   color: var(--ink-2);
-  font-size: 12px;
-}
-.footer-brand {
-  flex-basis: 100%;
-  color: var(--ink);
+  font-size: 13px;
 }
 
-/* Phones: the location button moves next to the search field, so the first row
-   (ATMOS + language + theme) fits at 320px. 16px text in the field stops iOS
-   from zooming in on focus. */
+/* 16px text in the search field stops iOS from zooming in on focus. */
 @media (max-width: 767px) {
-  .header {
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    grid-template-areas:
-      "brand  lang   theme"
-      "search search locate";
-    gap: 10px 8px;
-  }
-  .header-actions {
-    display: contents;
-  }
-  .header-actions > :first-child {
-    grid-area: locate;
-  }
-  .header-actions > .lang-switch {
-    grid-area: lang;
-  }
-  .header-actions > :last-child {
-    grid-area: theme;
-  }
   .search input {
     font-size: 16px;
-  }
-}
-/* The tagline only fits next to the controls on wider phones. */
-@media (max-width: 399px) {
-  .wordmark-tagline {
-    display: none;
   }
 }
 
 @media (min-width: 768px) {
   .container {
-    padding: 0 28px;
+    padding-left: max(28px, env(safe-area-inset-left, 0px));
+    padding-right: max(28px, env(safe-area-inset-right, 0px));
   }
   .header {
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas: "brand search actions";
-    gap: 24px;
-    min-height: 68px;
-    padding: 12px 0;
+    gap: 20px;
+    padding: 18px 0 8px;
+  }
+  .header-actions {
+    grid-area: actions;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-actions > * {
+    grid-area: auto;
   }
   .header-search {
     width: 100%;
-    max-width: 460px;
+    max-width: 440px;
     justify-self: center;
   }
-  .dashboard,
-  .skeleton-dashboard,
-  .lower {
-    gap: 24px;
+  .hero-area {
+    min-height: clamp(420px, 58vh, 600px);
+    padding-block: 28px 80px;
   }
-  .dashboard,
-  .skeleton-dashboard {
-    padding-top: 24px;
-  }
-  .footer {
-    font-size: 13px;
-  }
-  .footer-brand {
-    flex-basis: auto;
+  .sheet-inner {
+    padding-block: 32px 8px;
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
   .container {
-    padding: 0 36px;
+    padding-left: max(36px, env(safe-area-inset-left, 0px));
+    padding-right: max(36px, env(safe-area-inset-right, 0px));
   }
   .lower {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 48px;
     align-items: start;
-  }
-  .dashboard,
-  .skeleton-dashboard {
-    gap: 28px;
-    padding-top: 28px;
   }
 }

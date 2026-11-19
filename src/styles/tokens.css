@@ -1,90 +1,89 @@
-/* ATMOS design tokens. Values follow the design brief. Where a brief color
-   failed WCAG AA on a surface it is used on, it was adjusted and the brief's
-   value is noted. Text needs 4.5:1; chart lines and control borders need 3:1. */
+/* Sky Window design tokens.
+   The sky itself has its own colors (sky.css). These tokens are for the
+   forecast "sheet" that slides over it, and for controls that sit on the sky.
+   All text pairs were checked for WCAG AA: 4.5:1 for text, 3:1 for control
+   borders. Values that had to change from the sample are noted. */
 
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --bg: #f1f4f1;
-  --surface: #ffffff;
-  --elevated: #f8faf8;
-  --ink: #17231f;
-  --ink-2: #5c6a63;          /* brief: #63716A (4.3:1 on accent-soft) */
-  --line: #d8e0da;           /* dividers only */
-  --line-strong: #86948c;    /* inputs and outlined buttons: 3.2:1 (brief border is 1.35:1) */
-  --accent: #176b57;
-  --accent-hover: #115443;
+  --bg: #f6f9fc;             /* the sheet */
+  --surface: #ffffff;        /* dropdown, raised rows */
+  --elevated: #eef4f9;
+  --ink: #10243a;
+  --ink-2: #566b80;
+  --line: #dde6ee;
+  --line-strong: #7d8d9e;    /* 3.4:1 on white */
+  --accent: #1f5a9c;         /* sample: #2A68AD (4.9:1 on soft, darkened for small text) */
+  --accent-hover: #174a83;
   --accent-ink: #ffffff;
-  --accent-soft: #e0eee8;
-  --highlight: #e8b84f;      /* fills only (1.8:1 as text) */
-  --danger: #a8423e;         /* brief: #B94C48 (4.2:1 on its banner) */
+  --accent-soft: #e6eff7;
+  --rain: #22689f;           /* sample: #2C78C0 (4.4:1 on the sheet) */
+  --sun: #ffc54d;            /* fills only */
+  --sun-text: #8a5716;
+  --danger: #a8423e;
   --danger-soft: #f8e5e3;
-  --success: #267b59;
-  --warn: #8a5716;           /* brief: #A96B1F (3.9:1 as text) */
+  --success: #2b7a57;
+  --warn: #8a5716;
   --warn-soft: #faf0dc;
-  --focus: #115443;
+  --focus: #1f5a9c;
 
-  /* Data colors: amber = temperature and sun, cyan-green = water, grey = support. */
-  --data-temp: #9a6a0e;      /* line/text on white: 4.7:1 (brief amber is a fill) */
-  --data-temp-fill: #e8b84f;
-  --data-water: #2f7f7b;     /* 4.7:1 */
-  --data-water-soft: #cfe6e3;
-  --data-grid: #e3e9e5;
-  --data-muted: #a9b5ae;
-
-  --skeleton: #e4eae6;
-  --shadow-pop: 0 1px 2px rgba(23, 35, 31, 0.06), 0 10px 28px rgba(23, 35, 31, 0.12);
+  --skeleton: #e3ebf2;
+  --shadow-pop: 0 1px 2px rgba(16, 36, 58, 0.08), 0 14px 34px rgba(16, 36, 58, 0.16);
+  --sheet-shadow: 0 -10px 30px rgba(8, 20, 40, 0.12);
 }
 
-/* Dark is its own theme, not an inversion: deep forest surfaces, lighter mint accent. */
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #101815;
-  --surface: #18231e;
-  --elevated: #202e27;
-  --ink: #eef4ef;
-  --ink-2: #a2b1a7;
-  --line: #34433a;
-  --line-strong: #728379;    /* 4:1 on surface */
-  --accent: #72c7a3;
-  --accent-hover: #8bd8b7;
-  --accent-ink: #10241a;
-  --accent-soft: #244638;
-  --highlight: #e8bf65;
+  --bg: #0d1a2e;
+  --surface: #13233b;
+  --elevated: #15263f;
+  --ink: #e6eef8;
+  --ink-2: #9cb0c6;
+  --line: #1f3049;
+  --line-strong: #5b7290;    /* 3.2:1 on surface */
+  --accent: #7db6ec;
+  --accent-hover: #9cc8f2;
+  --accent-ink: #0b1a2e;
+  --accent-soft: #15263f;
+  --rain: #7db6ec;
+  --sun: #ffd98a;
+  --sun-text: #ffd98a;
   --danger: #f08078;
   --danger-soft: #3e2522;
   --success: #78c99c;
   --warn: #e7b96c;
   --warn-soft: #3a3020;
-  --focus: #8bd8b7;
+  --focus: #9cc8f2;
 
-  --data-temp: #e8bf65;
-  --data-temp-fill: #e8bf65;
-  --data-water: #6fc1c0;
-  --data-water-soft: #24413d;
-  --data-grid: #26342d;
-  --data-muted: #50625a;
-
-  --skeleton: #223029;
-  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --skeleton: #1a2c45;
+  --shadow-pop: 0 14px 34px rgba(0, 0, 0, 0.5);
+  --sheet-shadow: 0 -10px 30px rgba(0, 0, 0, 0.35);
 }
 
 :root {
-  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --sans: "Inter Tight", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: var(--sans); /* numbers use the same face with tabular digits */
 
-  --r-panel: 12px;
-  --r-tile: 10px;
-  --r-input: 9px;
-  --r-btn: 8px;
+  /* On the sky: always white text, whatever the theme. */
+  --on-sky: #ffffff;
+  --on-sky-2: #ffffff;       /* solid: see-through white dropped below 4.5:1 mid-sky */
+  --sky-line: rgba(255, 255, 255, 0.42);
+  --sky-fill: rgba(8, 18, 35, 0.22);
+  --sky-fill-hover: rgba(255, 255, 255, 0.16);
+  --sky-ink: #0e2238;        /* text on white pills */
+
+  --r-sheet: 28px;
+  --r-panel: 20px;
+  --r-tile: 16px;
+  --r-input: 999px;
+  --r-btn: 999px;
 
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --t-hover: 120ms;
   --t-menu: 140ms;
   --t-dialog: 160ms;
   --t-theme: 180ms;
-  --t-photo: 180ms;
-  --t-chart: 250ms;
 }

@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { I18nProvider } from "./i18n/I18nProvider.jsx";
 import App from "./App.jsx";
 import "./styles/tokens.css";
+import "./styles/sky.css";
 import "./styles/base.css";
 import "./styles/layout.css";
 import "./styles/components.css";

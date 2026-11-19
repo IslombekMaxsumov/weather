@@ -1,11 +1,11 @@
-// WMO weather codes (used by Open-Meteo) → translation key, icon and photo group.
+// WMO weather codes (used by Open-Meteo) → translation key, icon and sky group.
 // Code list: https://open-meteo.com/en/docs (section "WMO Weather interpretation codes").
 import {
   Cloud, CloudDrizzle, CloudFog, CloudHail, CloudLightning, CloudMoon, CloudMoonRain, CloudRain,
   CloudRainWind, CloudSnow, CloudSun, CloudSunRain, Cloudy, Moon, Snowflake, Sun,
 } from "lucide-react";
 
-// group = which photo set fits ("clear", "partly", "overcast", "fog", "rain", "snow", "storm")
+// group = which sky to draw ("clear", "partly", "overcast", "fog", "rain", "snow", "storm")
 const CODES = {
   0: { key: "clear", group: "clear", icon: [Sun, Moon] },
   1: { key: "mainlyClear", group: "clear", icon: [Sun, Moon] },

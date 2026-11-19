@@ -1,4 +1,4 @@
-// Top bar: ATMOS wordmark, city search, "my location", language and theme.
+// Top bar on the sky: wordmark, city search, "my location", language and theme.
 // On phones the search drops to its own full-width row (see layout.css).
 import { LocateFixed, Loader } from "lucide-react";
 import { useI18n } from "../i18n/useI18n.js";
@@ -8,18 +8,14 @@ import { ThemeToggle } from "./ThemeToggle.jsx";
 
 function Wordmark() {
   const { t } = useI18n();
-  // The mark is a small data trace over a baseline: weather as measurements.
+  // A sun sitting on the horizon: one arc, two lines.
   return (
     <span className="wordmark">
-      <svg viewBox="0 0 32 32" aria-hidden="true">
-        <rect width="32" height="32" rx="8" className="wordmark-tile" />
-        <path d="M6 21l5-6 4 3 5-8 6 5" className="wordmark-trace" />
-        <path d="M6 25h20" className="wordmark-base" />
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 15a7 7 0 0 1 14 0" />
+        <path d="M2 15h20M7 19h10" />
       </svg>
-      <span className="wordmark-text">
-        <span className="wordmark-name">{t("brand")}</span>
-        <span className="wordmark-tagline">{t("brand.tagline")}</span>
-      </span>
+      <span>{t("brand")}</span>
     </span>
   );
 }

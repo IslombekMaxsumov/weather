@@ -8,8 +8,10 @@ import { useNow } from "./hooks/useNow.js";
 import { storage } from "./lib/storage.js";
 import { getCityById, reverseGeocode } from "./lib/api.js";
 import { cityNow } from "./lib/format.js";
+import { describe } from "./lib/weatherCodes.js";
 import { Header } from "./components/Header.jsx";
-import { DashboardSkeleton, Hero } from "./components/Hero.jsx";
+import { Hero, HeroSkeleton, SheetSkeleton } from "./components/Hero.jsx";
+import { Sky } from "./components/Sky.jsx";
 import { Hourly } from "./components/Hourly.jsx";
 import { Details } from "./components/Details.jsx";
 import { Daily } from "./components/Daily.jsx";
@@ -24,7 +26,7 @@ const DEFAULT_PLACE = {
 };
 
 // Development only: add ?wx=95&day=0 to the URL to preview any weather code
-// (photo, icon, description) without waiting for that weather. Vite removes
+// (sky, icon, description) without waiting for that weather. Vite removes
 // this in the production build, because import.meta.env.DEV is false there.
 function withDevOverride(data) {
   if (!import.meta.env.DEV || !data) return data;
@@ -127,10 +129,20 @@ export default function App() {
   // While a new city loads, the previous city's forecast (and name) stays on screen.
   const shownPlace = weather.switching && weather.shownPlace ? weather.shownPlace : place;
 
+  // The sky shows the current weather; a calm overcast sky while loading or on errors.
+  const ready = weather.status === "ready" && data;
+  const wx = ready ? describe(data.current.code, data.current.isDay) : null;
+
   return (
     <div className="app">
+      <Sky
+        group={wx ? wx.group : "overcast"}
+        night={ready ? !data.current.isDay : false}
+        loading={weather.status === "loading"}
+      />
       <a className="skip-link" href="#main">{t("app.skip")}</a>
-      <div className="container">
+
+      <div className="container on-sky">
         <Header
           recent={recent}
           onSelect={choosePlace}
@@ -139,35 +151,56 @@ export default function App() {
           theme={theme.theme}
           onToggleTheme={theme.toggle}
         />
+      </div>
 
-        <main id="main" tabIndex={-1} className="dashboard">
+      <main id="main" tabIndex={-1}>
+        <div className="container on-sky hero-area">
           {notice && <Notice message={notice} onDismiss={() => setNotice(null)} />}
           {weather.stale && <StaleBanner error={weather.error} savedAt={entry.savedAt} onRetry={weather.refresh} />}
-
-          {weather.status === "loading" && <DashboardSkeleton place={place} />}
+          {weather.status === "loading" && <HeroSkeleton place={place} />}
           {weather.status === "error" && <ErrorState error={weather.error} onRetry={weather.refresh} />}
-          {weather.status === "ready" && data && (
-            <>
-              <Hero
-                place={shownPlace}
-                data={data}
-                savedAt={entry.savedAt}
-                refreshing={weather.refreshing}
-                switching={weather.switching}
-                pendingName={place.name || t("locate.myLocation")}
-                stale={weather.stale}
-                onRefresh={weather.refresh}
-              />
-              <Hourly hours={data.hourly} />
-              <div className="lower">
-                <Details current={data.current} today={data.daily[0]} localNow={cityNow(data.utcOffsetSeconds)} />
-                <Daily days={data.daily} currentTemp={data.current.temp} />
-              </div>
-            </>
+          {ready && (
+            <Hero
+              place={shownPlace}
+              data={data}
+              savedAt={entry.savedAt}
+              refreshing={weather.refreshing}
+              switching={weather.switching}
+              pendingName={place.name || t("locate.myLocation")}
+              stale={weather.stale}
+              onRefresh={weather.refresh}
+            />
           )}
-        </main>
+        </div>
 
-        <Footer />
+        {/* The sheet slides up over the fixed sky as you scroll. */}
+        {weather.status !== "error" && (
+          <div className="sheet">
+            <div className="container sheet-inner">
+              {weather.status === "loading" && <SheetSkeleton />}
+              {ready && (
+                <>
+                  <Hourly hours={data.hourly} />
+                  <div className="lower">
+                    <Details
+                      current={data.current}
+                      today={data.daily[0]}
+                      nextHour={data.hourly[0]}
+                      localNow={cityNow(data.utcOffsetSeconds)}
+                    />
+                    <Daily days={data.daily} currentTemp={data.current.temp} />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </main>
+
+      <div className={`sheet sheet-end${weather.status === "error" ? " is-first" : ""}`}>
+        <div className="container">
+          <Footer />
+        </div>
       </div>
       <p className="sr-only" role="status" aria-live="polite">{announcement}</p>
     </div>

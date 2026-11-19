@@ -1,179 +1,83 @@
-// "Conditions now": six measurements, each drawn in a way that suits the data
-// (a humidity meter, a wind compass, a UV scale, a sunrise → sunset timeline).
-// Every value also has a plain-language note, so meaning never depends on color.
-import { Droplets, Eye, Gauge, Sun, Sunrise, Wind } from "lucide-react";
+// "Right now": six measurements in a quiet grid with hairline dividers, plus the
+// sun's path from sunrise to sunset. Every value has a plain-language note
+// ("Comfortable", "From the north-east"), so meaning never depends on color.
+import { ArrowUp, Droplet, Droplets, Eye, Gauge, Sun, Wind } from "lucide-react";
 import { useI18n } from "../i18n/useI18n.js";
 import { compass, uvLevel, wallDate } from "../lib/format.js";
 
-function Tile({ icon: Icon, label, value, unit, note, className = "", children }) {
+function Item({ icon: Icon, label, value, unit, note, children }) {
   return (
-    <div className={`tile ${className}`}>
-      <dt className="tile-label">
+    <div className="cond">
+      <dt>
         <Icon size={15} aria-hidden="true" />
         {label}
       </dt>
-      <dd className="tile-body">
-        {value !== undefined && (
-          <span className="tile-value">
-            {value}
-            {unit && <span className="tile-unit">{unit}</span>}
-          </span>
-        )}
-        {children}
-        {note && <span className="tile-note">{note}</span>}
+      <dd>
+        <span className="cond-value">
+          {value}
+          {unit && <span className="cond-unit">{unit}</span>}
+          {children}
+        </span>
+        {note && <span className="cond-note">{note}</span>}
       </dd>
     </div>
   );
 }
 
-// Humidity 0–100 %, with tick marks where the notes change (30 % dry, 60 % humid).
-function HumidityMeter({ value }) {
-  return (
-    <span className="meter" aria-hidden="true">
-      <span className="meter-fill" style={{ width: `${Math.min(Math.max(value, 0), 100)}%` }} />
-      <span className="meter-tick" style={{ left: "30%" }} />
-      <span className="meter-tick" style={{ left: "60%" }} />
-    </span>
-  );
-}
-
-// A small compass. The arrow points where the wind blows TO (180° from its source).
-function WindDial({ degrees }) {
-  return (
-    <svg className="dial" viewBox="0 0 64 64" aria-hidden="true">
-      <circle cx="32" cy="32" r="27" className="dial-ring" />
-      {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
-        <line key={a} x1="32" y1="5" x2="32" y2={a % 90 ? 9 : 11} className="dial-tick" transform={`rotate(${a} 32 32)`} />
-      ))}
-      <text x="32" y="21" className="dial-n" textAnchor="middle">N</text>
-      <g transform={`rotate(${(degrees + 180) % 360} 32 32)`}>
-        <path d="M32 15 L37 30 L32 27 L27 30 Z" className="dial-arrow" />
-        <line x1="32" y1="27" x2="32" y2="47" className="dial-tail" />
-      </g>
-    </svg>
-  );
-}
-
-// UV 0–11+, one segment per index point, shaded by the WHO band it belongs to.
-function UvScale({ value }) {
-  return (
-    <span className="uv-scale" aria-hidden="true">
-      {Array.from({ length: 11 }, (_, i) => (
-        <span key={i} data-band={uvLevel(i + 0.5)} className={i < value ? "is-on" : undefined} />
-      ))}
-    </span>
-  );
-}
-
-// Sunrise → sunset as a line, with the sun's current position when it's up.
-function SunTimeline({ rise, set, now, labels }) {
-  const span = set - rise;
-  const pos = (now - rise) / span;
+// Sunrise → sunset as an arc, with the sun where it is now (hidden after dark).
+function SunPath({ rise, set, now }) {
+  const { t, formatTime } = useI18n();
+  const pos = (now - rise) / (set - rise);
   const up = pos >= 0 && pos <= 1;
+  const minutes = Math.round((set - rise) / 60000);
+  // Quadratic curve from (16,96) over (170,-20) to (324,96); B(p) gives the sun's spot.
+  const p = Math.min(Math.max(pos, 0), 1);
+  const x = (1 - p) ** 2 * 16 + 2 * (1 - p) * p * 170 + p ** 2 * 324;
+  const y = (1 - p) ** 2 * 96 + 2 * (1 - p) * p * -20 + p ** 2 * 96;
+
   return (
-    <span className="sun">
-      <span className="sun-track" aria-hidden="true">
-        <span className="sun-fill" style={{ width: `${Math.min(Math.max(pos, 0), 1) * 100}%` }} />
-        {up && <span className="sun-now" style={{ left: `${pos * 100}%` }} />}
-      </span>
-      <span className="sun-times">
-        <span>
-          <span className="label">{labels.rise}</span>
-          <span className="sun-time">{labels.riseTime}</span>
-        </span>
-        <span className="sun-set">
-          <span className="label">{labels.set}</span>
-          <span className="sun-time">{labels.setTime}</span>
-        </span>
-      </span>
-    </span>
+    <section className="block sunpath" aria-labelledby="h-sun">
+      <h2 id="h-sun" className="block-title">{t("detail.sunTimes")}</h2>
+      <svg viewBox="0 0 340 110" className="sun-arc" aria-hidden="true">
+        <path d="M16 96 Q170 -20 324 96" className="sun-arc-path" />
+        {up && <path d={`M16 96 Q${16 + (170 - 16) * p} ${96 + (-20 - 96) * p} ${x} ${y}`} className="sun-arc-done" />}
+        <line x1="0" y1="96" x2="340" y2="96" className="sun-arc-horizon" />
+        {up && <circle cx={x} cy={y} r="8" className="sun-arc-sun" />}
+      </svg>
+      <dl className="sun-times">
+        <div><dt>{t("detail.sun")}</dt><dd>{formatTime(rise)}</dd></div>
+        <div className="sun-times-set"><dt>{t("detail.sunsetLabel")}</dt><dd>{formatTime(set)}</dd></div>
+      </dl>
+      <p className="sun-length">{t("detail.dayLength", { h: Math.floor(minutes / 60), m: minutes % 60 })}</p>
+    </section>
   );
 }
 
-export function Details({ current, today, localNow }) {
-  const { t, formatNumber, formatTime } = useI18n();
+export function Details({ current, today, nextHour, localNow }) {
+  const { t, formatNumber } = useI18n();
   const humidityNote = current.humidity < 30 ? "dry" : current.humidity <= 60 ? "comfortable" : "humid";
   const km = current.visibility / 1000;
   const visibilityNote = km >= 10 ? "good" : km >= 4 ? "moderate" : "poor";
   const uv = Math.round(current.uv ?? 0);
-  const rise = wallDate(today.sunrise);
-  const set = wallDate(today.sunset);
-  const dayMinutes = Math.round((set - rise) / 60000);
-  const point = compass(current.windDir);
+  const precip = nextHour?.precip ?? 0;
 
   return (
-    <section className="details" aria-labelledby="h-details">
-      <header className="panel-head">
-        <h2 id="h-details" className="section-title">{t("section.details")}</h2>
-      </header>
-      <dl className="tiles">
-        <Tile
-          icon={Droplets}
-          label={t("detail.humidity")}
-          value={formatNumber(Math.round(current.humidity))}
-          unit="%"
-          note={t(`humidity.${humidityNote}`)}
-          className="tile-water"
-        >
-          <HumidityMeter value={current.humidity} />
-        </Tile>
-
-        <Tile
-          icon={Wind}
-          label={t("detail.wind")}
-          note={<>{t(`dir.${point}`)} <span className="mono">· {Math.round(current.windDir)}°</span></>}
-          className="tile-wind"
-        >
-          <span className="tile-split">
-            <span className="tile-value">
-              {formatNumber(Math.round(current.windSpeed))}
-              <span className="tile-unit">{t("unit.kmh")}</span>
-            </span>
-            <WindDial degrees={current.windDir} />
-          </span>
-        </Tile>
-
-        <Tile
-          icon={Gauge}
-          label={t("detail.pressure")}
-          value={formatNumber(Math.round(current.pressure))}
-          unit={t("unit.hpa")}
-          note={t("pressure.sea")}
-        />
-
-        <Tile
-          icon={Eye}
-          label={t("detail.visibility")}
-          value={formatNumber(km, { maximumFractionDigits: km < 10 ? 1 : 0 })}
-          unit={t("unit.km")}
-          note={t(`visibility.${visibilityNote}`)}
-        />
-
-        <Tile icon={Sun} label={t("detail.uv")} className="tile-sun">
-          <span className="tile-value">
-            {formatNumber(uv)}
-            <span className="tile-level">{t(`uv.${uvLevel(uv)}`)}</span>
-          </span>
-          <UvScale value={uv} />
-        </Tile>
-
-        <Tile
-          icon={Sunrise}
-          label={t("detail.sunTimes")}
-          note={t("detail.dayLength", { h: Math.floor(dayMinutes / 60), m: dayMinutes % 60 })}
-          className="tile-sun tile-daylight"
-        >
-          <SunTimeline
-            rise={rise}
-            set={set}
-            now={localNow}
-            labels={{
-              rise: t("detail.sun"), riseTime: formatTime(rise),
-              set: t("detail.sunsetLabel"), setTime: formatTime(set),
-            }}
-          />
-        </Tile>
-      </dl>
-    </section>
+    <div className="details-col">
+      <section className="block details" aria-labelledby="h-details">
+        <h2 id="h-details" className="block-title">{t("section.details")}</h2>
+        <dl className="conds">
+          <Item icon={Droplets} label={t("detail.humidity")} value={formatNumber(Math.round(current.humidity))} unit="%" note={t(`humidity.${humidityNote}`)} />
+          <Item icon={Wind} label={t("detail.wind")} value={formatNumber(Math.round(current.windSpeed))} unit={t("unit.kmh")} note={t(`dir.${compass(current.windDir)}`)}>
+            {/* The arrow points where the wind blows TO, so it's rotated 180° from its source. */}
+            <ArrowUp size={16} className="wind-arrow" style={{ transform: `rotate(${(current.windDir + 180) % 360}deg)` }} aria-hidden="true" />
+          </Item>
+          <Item icon={Droplet} label={t("precip.label")} value={formatNumber(precip)} unit="%" note={t("hourly.now")} />
+          <Item icon={Gauge} label={t("detail.pressure")} value={formatNumber(Math.round(current.pressure))} unit={t("unit.hpa")} note={t("pressure.sea")} />
+          <Item icon={Eye} label={t("detail.visibility")} value={formatNumber(km, { maximumFractionDigits: km < 10 ? 1 : 0 })} unit={t("unit.km")} note={t(`visibility.${visibilityNote}`)} />
+          <Item icon={Sun} label={t("detail.uv")} value={formatNumber(uv)} note={t(`uv.${uvLevel(uv)}`)} />
+        </dl>
+      </section>
+      <SunPath rise={wallDate(today.sunrise)} set={wallDate(today.sunset)} now={localNow} />
+    </div>
   );
 }

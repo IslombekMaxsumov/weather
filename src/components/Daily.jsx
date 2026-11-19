@@ -1,6 +1,6 @@
-// Five-day forecast as a compact table. Each row's bar shows that day's low→high
+// Five-day forecast, one row per day. Each row's bar shows that day's low→high
 // range on a scale shared by all five days, so warmer and colder days compare at
-// a glance. Visually it's a table; for screen readers each row is one sentence.
+// a glance. For screen readers each row is one sentence.
 import { Droplet } from "lucide-react";
 import { useI18n } from "../i18n/useI18n.js";
 import { describe } from "../lib/weatherCodes.js";
@@ -14,21 +14,8 @@ export function Daily({ days, currentTemp }) {
   const pos = (v) => `${((v - lo) / span) * 100}%`;
 
   return (
-    <section className="panel daily" aria-labelledby="h-daily">
-      <header className="panel-head">
-        <h2 id="h-daily" className="section-title">{t("section.daily")}</h2>
-        <p className="panel-meta mono" aria-hidden="true">{temp(lo)} – {temp(hi)}</p>
-      </header>
-
-      <div className="daily-head" aria-hidden="true">
-        <span>{t("daily.colDay")}</span>
-        <span>{t("daily.colCondition")}</span>
-        <span className="num">{t("daily.colPrecip")}</span>
-        <span className="num">{t("daily.colLow")}</span>
-        <span>{t("daily.colRange")}</span>
-        <span className="num">{t("daily.colHigh")}</span>
-      </div>
-
+    <section className="block daily" aria-labelledby="h-daily">
+      <h2 id="h-daily" className="block-title">{t("section.daily")}</h2>
       <ol className="daily-list">
         {days.map((d, i) => {
           const wx = describe(d.code, true);
