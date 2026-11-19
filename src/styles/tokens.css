@@ -1,71 +1,90 @@
-/* Design tokens. Values follow the design brief; colors that failed WCAG AA
-   (4.5:1 for text) on some surface were adjusted, with the brief's value noted.
-   --accent is used for fills (buttons); --accent-text for accent-colored text. */
+/* ATMOS design tokens. Values follow the design brief. Where a brief color
+   failed WCAG AA on a surface it is used on, it was adjusted and the brief's
+   value is noted. Text needs 4.5:1; chart lines and control borders need 3:1. */
 
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --bg: #f1f4f5;
+  --bg: #f1f4f1;
   --surface: #ffffff;
-  --elevated: #f8fafb;
-  --ink: #202b32;
-  --ink-2: #56646b;          /* brief: #64747D (3.7:1 on highlight) */
-  --line: #dce3e7;
-  --line-strong: #888c8e;    /* form control borders: 3:1 */
-  --accent: #477b96;         /* fills: white text on it is 4.6:1 */
-  --accent-text: #3b677d;    /* brief accent as text: 3.5:1, darkened */
-  --accent-hover: #315e76;
+  --elevated: #f8faf8;
+  --ink: #17231f;
+  --ink-2: #5c6a63;          /* brief: #63716A (4.3:1 on accent-soft) */
+  --line: #d8e0da;           /* dividers only */
+  --line-strong: #86948c;    /* inputs and outlined buttons: 3.2:1 (brief border is 1.35:1) */
+  --accent: #176b57;
+  --accent-hover: #115443;
   --accent-ink: #ffffff;
-  --soft: #e2edf2;
-  --hl: #d3e3ea;
-  --danger: #9d4745;         /* brief: #C85B58 */
-  --ok: #3e6a57;             /* brief: #528B72 */
-  --warn: #7e5b2c;           /* brief: #C18B43 */
-  --focus: #315e76;
+  --accent-soft: #e0eee8;
+  --highlight: #e8b84f;      /* fills only (1.8:1 as text) */
+  --danger: #a8423e;         /* brief: #B94C48 (4.2:1 on its banner) */
+  --danger-soft: #f8e5e3;
+  --success: #267b59;
+  --warn: #8a5716;           /* brief: #A96B1F (3.9:1 as text) */
+  --warn-soft: #faf0dc;
+  --focus: #115443;
 
-  --shadow-pop: 0 1px 2px rgba(20, 33, 42, 0.06), 0 12px 32px rgba(20, 33, 42, 0.12);
-  --skeleton: #e2e9ec;
+  /* Data colors: amber = temperature and sun, cyan-green = water, grey = support. */
+  --data-temp: #9a6a0e;      /* line/text on white: 4.7:1 (brief amber is a fill) */
+  --data-temp-fill: #e8b84f;
+  --data-water: #2f7f7b;     /* 4.7:1 */
+  --data-water-soft: #cfe6e3;
+  --data-grid: #e3e9e5;
+  --data-muted: #a9b5ae;
+
+  --skeleton: #e4eae6;
+  --shadow-pop: 0 1px 2px rgba(23, 35, 31, 0.06), 0 10px 28px rgba(23, 35, 31, 0.12);
 }
 
+/* Dark is its own theme, not an inversion: deep forest surfaces, lighter mint accent. */
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #141c22;
-  --surface: #1c272f;
-  --elevated: #25333c;
-  --ink: #eaf0f3;
-  --ink-2: #acb9c0;          /* brief: #A1B0B8 (4.2:1 on highlight) */
-  --line: #34444e;
-  --line-strong: #66727a;
-  --accent: #83b4cb;         /* fills: dark text on it is 7.3:1 */
-  --accent-text: #91bdd1;    /* brief: #83B4CB (4.2:1 on highlight) */
-  --accent-hover: #a0c8da;
-  --accent-ink: #14212a;
-  --soft: #253b48;
-  --hl: #304a59;
-  --danger: #eba5a0;         /* brief: #E27D77 */
-  --ok: #8fc2a7;             /* brief: #7EB99A */
-  --warn: #e0b16d;
-  --focus: #a0c8da;
+  --bg: #101815;
+  --surface: #18231e;
+  --elevated: #202e27;
+  --ink: #eef4ef;
+  --ink-2: #a2b1a7;
+  --line: #34433a;
+  --line-strong: #728379;    /* 4:1 on surface */
+  --accent: #72c7a3;
+  --accent-hover: #8bd8b7;
+  --accent-ink: #10241a;
+  --accent-soft: #244638;
+  --highlight: #e8bf65;
+  --danger: #f08078;
+  --danger-soft: #3e2522;
+  --success: #78c99c;
+  --warn: #e7b96c;
+  --warn-soft: #3a3020;
+  --focus: #8bd8b7;
 
-  --shadow-pop: 0 12px 36px rgba(0, 0, 0, 0.45);
-  --skeleton: #22303a;
+  --data-temp: #e8bf65;
+  --data-temp-fill: #e8bf65;
+  --data-water: #6fc1c0;
+  --data-water-soft: #24413d;
+  --data-grid: #26342d;
+  --data-muted: #50625a;
+
+  --skeleton: #223029;
+  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
 
 :root {
-  --font: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
 
-  /* Text on photographs is always light, whatever the theme. */
-  --on-photo: #ffffff;
-  --on-photo-2: rgba(255, 255, 255, 0.86);
-  --scrim: 12, 20, 26; /* rgb of the readability overlay */
-
-  --r-sm: 8px;
-  --r: 14px;
-  --r-lg: 22px;
-  --pill: 999px;
+  --r-panel: 12px;
+  --r-tile: 10px;
+  --r-input: 9px;
+  --r-btn: 8px;
 
   --ease: cubic-bezier(0.2, 0, 0, 1);
-  --fast: 150ms;
+  --t-hover: 120ms;
+  --t-menu: 140ms;
+  --t-dialog: 160ms;
+  --t-theme: 180ms;
+  --t-photo: 180ms;
+  --t-chart: 250ms;
 }

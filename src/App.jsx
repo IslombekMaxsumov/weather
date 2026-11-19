@@ -7,8 +7,9 @@ import { useWeather } from "./hooks/useWeather.js";
 import { useNow } from "./hooks/useNow.js";
 import { storage } from "./lib/storage.js";
 import { getCityById, reverseGeocode } from "./lib/api.js";
+import { cityNow } from "./lib/format.js";
 import { Header } from "./components/Header.jsx";
-import { Hero, HeroSkeleton } from "./components/Hero.jsx";
+import { DashboardSkeleton, Hero } from "./components/Hero.jsx";
 import { Hourly } from "./components/Hourly.jsx";
 import { Details } from "./components/Details.jsx";
 import { Daily } from "./components/Daily.jsx";
@@ -123,6 +124,8 @@ export default function App() {
 
   const { entry } = weather;
   const data = withDevOverride(entry?.data);
+  // While a new city loads, the previous city's forecast (and name) stays on screen.
+  const shownPlace = weather.switching && weather.shownPlace ? weather.shownPlace : place;
 
   return (
     <div className="app">
@@ -136,25 +139,28 @@ export default function App() {
           theme={theme.theme}
           onToggleTheme={theme.toggle}
         />
-        {notice && <Notice message={notice} onDismiss={() => setNotice(null)} />}
 
-        <main id="main" tabIndex={-1}>
+        <main id="main" tabIndex={-1} className="dashboard">
+          {notice && <Notice message={notice} onDismiss={() => setNotice(null)} />}
           {weather.stale && <StaleBanner error={weather.error} savedAt={entry.savedAt} onRetry={weather.refresh} />}
 
-          {weather.status === "loading" && <HeroSkeleton place={place} />}
+          {weather.status === "loading" && <DashboardSkeleton place={place} />}
           {weather.status === "error" && <ErrorState error={weather.error} onRetry={weather.refresh} />}
           {weather.status === "ready" && data && (
             <>
               <Hero
-                place={place}
+                place={shownPlace}
                 data={data}
                 savedAt={entry.savedAt}
                 refreshing={weather.refreshing}
+                switching={weather.switching}
+                pendingName={place.name || t("locate.myLocation")}
+                stale={weather.stale}
                 onRefresh={weather.refresh}
               />
               <Hourly hours={data.hourly} />
               <div className="lower">
-                <Details current={data.current} today={data.daily[0]} />
+                <Details current={data.current} today={data.daily[0]} localNow={cityNow(data.utcOffsetSeconds)} />
                 <Daily days={data.daily} currentTemp={data.current.temp} />
               </div>
             </>

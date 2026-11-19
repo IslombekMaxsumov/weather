@@ -1,11 +1,12 @@
 /* Page layout, mobile first.
-   < 760px   compact header, search on its own row, photo edge to edge
-   >= 760px  one-row header, framed photo
-   >= 1100px conditions and 5-day forecast side by side */
+   < 768px   header on two rows (search below), everything in one column
+   >= 768px  one-row header, conditions in 3 columns
+   >= 1024px current weather in two columns: reading 58% | photo 42%
+   >= 1200px conditions and 5-day forecast side by side */
 
 .container {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1360px;
   margin: 0 auto;
   padding: 0 16px;
 }
@@ -14,30 +15,58 @@
 
 .header {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
     "brand actions"
     "search search";
   align-items: center;
   gap: 10px 12px;
-  padding: 12px 0 14px;
+  padding: 12px 0 16px;
+  border-bottom: 1px solid var(--line);
 }
 .wordmark {
   grid-area: brand;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  gap: 10px;
+  min-width: 0;
 }
 .wordmark svg {
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
+}
+.wordmark-tile {
+  fill: var(--accent);
+}
+.wordmark-trace {
   fill: none;
-  stroke: var(--accent-text);
-  stroke-width: 2;
+  stroke: var(--accent-ink);
+  stroke-width: 2.4;
   stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.wordmark-base {
+  stroke: var(--highlight);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.wordmark-text {
+  display: grid;
+  line-height: 1.1;
+  min-width: 0;
+}
+.wordmark-name {
+  font-family: var(--mono);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+}
+.wordmark-tagline {
+  overflow: hidden;
+  color: var(--ink-2);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .header-search {
   grid-area: search;
@@ -47,84 +76,116 @@
   grid-area: actions;
   display: flex;
   align-items: center;
-  gap: 4px;
-}
-.header-actions .segmented {
-  margin: 0 4px;
+  gap: 6px;
 }
 
-/* ---------- main sections ---------- */
+/* ---------- dashboard ---------- */
 
-.section {
-  margin-top: 36px;
+.dashboard,
+.skeleton-dashboard {
+  display: grid;
+  gap: 20px;
+  padding-top: 20px;
 }
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 14px;
-  color: var(--ink-2);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.section-title::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--line);
-}
-
 .lower {
   display: grid;
+  gap: 20px;
 }
 
 .footer {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 24px;
-  margin-top: 56px;
-  padding: 22px 0 40px;
+  gap: 4px 24px;
+  margin-top: 36px;
+  padding: 16px 0 32px;
   border-top: 1px solid var(--line);
   color: var(--ink-2);
-  font-size: 13px;
+  font-size: 12px;
+}
+.footer-brand {
+  flex-basis: 100%;
+  color: var(--ink);
 }
 
-/* Phones: 16px text in the field stops iOS from zooming in on focus. */
-@media (max-width: 759px) {
+/* Phones: the location button moves next to the search field, so the first row
+   (ATMOS + language + theme) fits at 320px. 16px text in the field stops iOS
+   from zooming in on focus. */
+@media (max-width: 767px) {
+  .header {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "brand  lang   theme"
+      "search search locate";
+    gap: 10px 8px;
+  }
+  .header-actions {
+    display: contents;
+  }
+  .header-actions > :first-child {
+    grid-area: locate;
+  }
+  .header-actions > .lang-switch {
+    grid-area: lang;
+  }
+  .header-actions > :last-child {
+    grid-area: theme;
+  }
   .search input {
     font-size: 16px;
   }
 }
+/* The tagline only fits next to the controls on wider phones. */
+@media (max-width: 399px) {
+  .wordmark-tagline {
+    display: none;
+  }
+}
 
-@media (min-width: 760px) {
+@media (min-width: 768px) {
   .container {
-    padding: 0 32px;
+    padding: 0 28px;
   }
   .header {
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas: "brand search actions";
     gap: 24px;
-    padding: 18px 0 22px;
+    min-height: 68px;
+    padding: 12px 0;
   }
   .header-search {
-    max-width: 520px;
     width: 100%;
+    max-width: 460px;
     justify-self: center;
   }
-  .section {
-    margin-top: 48px;
+  .dashboard,
+  .skeleton-dashboard,
+  .lower {
+    gap: 24px;
+  }
+  .dashboard,
+  .skeleton-dashboard {
+    padding-top: 24px;
+  }
+  .footer {
+    font-size: 13px;
+  }
+  .footer-brand {
+    flex-basis: auto;
   }
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 1200px) {
   .container {
-    padding: 0 40px;
+    padding: 0 36px;
   }
   .lower {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-    gap: 64px;
+    align-items: start;
+  }
+  .dashboard,
+  .skeleton-dashboard {
+    gap: 28px;
+    padding-top: 28px;
   }
 }

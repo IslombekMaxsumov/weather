@@ -15,16 +15,20 @@ function CreditsDialog({ open, onClose }) {
         <ul className="credits-list">
           {Object.entries(PHOTOS).map(([key, p]) => (
             <li key={key}>
-              <img src={p.small} alt="" loading="lazy" width="96" height="64" />
-              <div>
+              <img src={p.small} alt="" loading="lazy" width="96" height="72" />
+              <div className="credits-text">
+                <p className="credits-cat">{t(`photoCat.${key}`)}</p>
                 <p className="credits-alt">{t(`alt.${key}`)}</p>
-                <p className="credits-meta">
-                  {p.author} ·{" "}
-                  <a href={p.licenseUrl} target="_blank" rel="noreferrer">{p.license}</a> ·{" "}
-                  <a href={p.page} target="_blank" rel="noreferrer">
-                    Wikimedia Commons <ExternalLink size={12} aria-hidden="true" />
-                  </a>
-                </p>
+                <dl className="credits-meta">
+                  <div><dt>{t("credits.author")}</dt><dd>{p.author}</dd></div>
+                  <div>
+                    <dt>{t("credits.license")}</dt>
+                    <dd><a href={p.licenseUrl} target="_blank" rel="noreferrer">{p.license}</a></dd>
+                  </div>
+                </dl>
+                <a className="credits-source" href={p.page} target="_blank" rel="noreferrer">
+                  {t("credits.source")} <ExternalLink size={12} aria-hidden="true" />
+                </a>
               </div>
             </li>
           ))}
@@ -39,6 +43,7 @@ export function Footer() {
   const [open, setOpen] = useState(false);
   return (
     <footer className="footer">
+      <p className="footer-brand"><span className="mono">ATMOS</span> · {t("brand.tagline")}</p>
       <p>
         {t("footer.data")}:{" "}
         <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo.com</a>{" "}

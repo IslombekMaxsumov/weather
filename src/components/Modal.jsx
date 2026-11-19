@@ -28,7 +28,7 @@ export function Modal({ open, onClose, titleId, title, className = "", children 
         <div className="modal-inner">
           <header className="modal-head">
             <h2 id={titleId}>{title}</h2>
-            <button type="button" className="icon-btn icon-btn-sm" aria-label={t("dialog.close")} onClick={onClose}>
+            <button type="button" className="tool-btn tool-btn-quiet" aria-label={t("dialog.close")} onClick={onClose}>
               <X size={16} aria-hidden="true" />
             </button>
           </header>
