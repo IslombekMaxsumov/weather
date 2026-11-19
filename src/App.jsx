@@ -7,7 +7,7 @@ import { useWeather } from "./hooks/useWeather.js";
 import { useNow } from "./hooks/useNow.js";
 import { storage } from "./lib/storage.js";
 import { getCityById, reverseGeocode } from "./lib/api.js";
-import { cityNow } from "./lib/format.js";
+import { cityNow, wallDate } from "./lib/format.js";
 import { describe } from "./lib/weatherCodes.js";
 import { Header } from "./components/Header.jsx";
 import { Hero, HeroSkeleton, SheetSkeleton } from "./components/Hero.jsx";
@@ -132,6 +132,19 @@ export default function App() {
   // The sky shows the current weather; a calm overcast sky while loading or on errors.
   const ready = weather.status === "ready" && data;
   const wx = ready ? describe(data.current.code, data.current.isDay) : null;
+  // How far the day has gone in the city (0 = sunrise, 1 = sunset), in steps of
+  // 2% so the sky only updates when the sun has visibly moved.
+  let sunProgress = 0.5;
+  if (ready) {
+    const rise = wallDate(data.daily[0].sunrise);
+    const set = wallDate(data.daily[0].sunset);
+    const raw = (cityNow(data.utcOffsetSeconds) - rise) / (set - rise);
+    sunProgress = Math.round(Math.min(Math.max(raw, 0), 1) * 50) / 50;
+  }
+  // Development only: &sun=0.1 previews the sun low (golden), &sun=0.5 at midday.
+  if (import.meta.env.DEV && new URLSearchParams(location.search).has("sun")) {
+    sunProgress = Number(new URLSearchParams(location.search).get("sun"));
+  }
 
   return (
     <div className="app">
@@ -139,6 +152,7 @@ export default function App() {
         group={wx ? wx.group : "overcast"}
         night={ready ? !data.current.isDay : false}
         loading={weather.status === "loading"}
+        sun={sunProgress}
       />
       <a className="skip-link" href="#main">{t("app.skip")}</a>
 

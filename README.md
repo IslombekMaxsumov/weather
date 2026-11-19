@@ -33,7 +33,8 @@ Live data in Uzbek, Russian and English, with light and dark themes.
 
 React 19 + Vite, plain CSS with design tokens, [Lucide](https://lucide.dev) icons, Inter Tight (Google Fonts).
 The clouds are drawn live with a small WebGL shader (`src/lib/cloudShader.js`, no libraries):
-perspective cloud layers made from fractal noise, lit by the sun, with darker undersides and haze
+perspective cloud layers made from fractal noise, a sun with bloom and light rays whose height
+follows the real time of day (golden near sunrise and sunset), clouds lit by the sun, with darker undersides and haze
 toward the horizon. Coverage and darkness follow the weather. Rain, snow, fog, stars and the moon are
 CSS layers on top. It renders at reduced size, ~30 frames a second, stands still with "reduce motion",
 and falls back to a CSS sky if WebGL isn't available.
@@ -64,7 +65,8 @@ npm run dev
 ```
 
 In development you can preview any weather type without waiting for it:
-add `?wx=95&day=0` to the URL (95 = thunderstorm, `day=0` = night).
+add `?wx=95&day=0` to the URL (95 = thunderstorm, `day=0` = night), and `&sun=0.1` to put the
+sun low (golden hour) or `&sun=0.5` for midday.
 This only works in `npm run dev`, not on the live site.
 
 ## Deploy

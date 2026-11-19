@@ -48,15 +48,17 @@ function createRenderer(canvas) {
   gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
   const u = {};
-  ["uRes", "uTime", "uCover", "uDark", "uTop", "uHor", "uLit", "uShade", "uSun", "uSunOn", "uHorizon"].forEach(
+  ["uRes", "uTime", "uCover", "uDark", "uTop", "uHor", "uLit", "uShade", "uSun", "uSunOn", "uHorizon", "uWarm"].forEach(
     (name) => (u[name] = gl.getUniformLocation(prog, name))
   );
   return { gl, u };
 }
 
-export function Sky({ group = "overcast", night = false, loading = false }) {
+// sun = how far the day has gone, 0 at sunrise to 1 at sunset (from the real data).
+export function Sky({ group = "overcast", night = false, loading = false, sun = 0.5 }) {
   const canvasRef = useRef(null);
   const renderer = useRef(undefined); // undefined = not tried yet, null = no WebGL
+  const startTime = useRef(performance.now()); // kept across updates so clouds never jump
   const [webgl, setWebgl] = useState(true);
 
   // If the graphics card drops the context (can happen on phones in the
@@ -83,7 +85,10 @@ export function Sky({ group = "overcast", night = false, loading = false }) {
     const canvas = canvasRef.current;
     const look = LOOKS[night ? `n-${group}` : group] ?? LOOKS.overcast;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const start = performance.now();
+    const start = startTime.current;
+    // Sun height: sin() is 0 at sunrise/sunset and 1 at midday. Low sun = golden.
+    const elevation = Math.sin(Math.PI * Math.min(Math.max(sun, 0), 1));
+    const warm = Math.max(0, 1 - elevation / 0.55) ** 0.8;
 
     // Draw at a reduced size and let CSS scale it up: clouds are soft, so it
     // looks the same and costs far less (important on phones).
@@ -99,7 +104,9 @@ export function Sky({ group = "overcast", night = false, loading = false }) {
       // Sun beside the temperature on phones; on wider screens in the open middle of
       // the sky, away from the text on the left and the facts on the right.
       const sx = phone ? 0.84 : 0.58;
-      const sy = phone ? 0.33 : 0.2;
+      const high = phone ? 0.3 : 0.2; // fraction of the screen from the top
+      const low = phone ? 0.62 : 0.66;
+      const sy = low + (high - low) * Math.pow(elevation, 0.6);
       gl.uniform2f(u.uRes, canvas.width, canvas.height);
       gl.uniform2f(u.uSun, (sx - 0.5) * aspect, 0.5 - sy);
     };
@@ -112,6 +119,7 @@ export function Sky({ group = "overcast", night = false, loading = false }) {
     gl.uniform1f(u.uDark, look.dark);
     gl.uniform1f(u.uSunOn, look.sun);
     gl.uniform1f(u.uHorizon, -0.32); // horizon low on the screen, behind the sheet
+    gl.uniform1f(u.uWarm, warm);
 
     const draw = (now) => {
       gl.uniform1f(u.uTime, 30 + (now - start) / 1000);
@@ -139,7 +147,7 @@ export function Sky({ group = "overcast", night = false, loading = false }) {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
     };
-  }, [group, night, webgl]);
+  }, [group, night, webgl, sun]);
 
   const clear = group === "clear" || group === "partly";
   const slots = webgl ? [] : (USE[group] ?? USE.overcast).map((i) => SLOTS[i]);

@@ -29,6 +29,7 @@ uniform vec3 uShade;
 uniform vec2 uSun;      // sun position in screen space (same units as p below)
 uniform float uSunOn;   // 0..1, sun brightness
 uniform float uHorizon; // horizon height in screen space
+uniform float uWarm;    // 0 = sun high (white), 1 = sun low (golden hour)
 
 // Hash and value noise (Dave Hoskins' hash: stable on phones).
 float hash(vec2 p) {
@@ -64,11 +65,21 @@ float density(vec2 w, float t) {
 void main() {
   vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
   float y = p.y - uHorizon;
-  vec3 col = mix(uHor, uTop, smoothstep(0.0, 0.9, y));
+  // Low sun: the horizon and the lit side of clouds turn golden.
+  float warm = uWarm * uSunOn;
+  vec3 hor = mix(uHor, vec3(0.99, 0.62, 0.38), warm * 0.75);
+  vec3 lit = mix(uLit, vec3(1.0, 0.76, 0.55), warm * 0.75);
+  vec3 sunCol = mix(vec3(1.0, 0.96, 0.88), vec3(1.0, 0.55, 0.25), uWarm);
+  vec3 col = mix(hor, uTop, smoothstep(0.0, 0.9, y));
 
+  // The sun: wide scattered glow in the air, faint light rays, then a soft
+  // bloom and a bright core (clouds drawn later cover it where they pass).
   float sd = length(p - uSun);
-  col += uSunOn * (vec3(1.0, 0.85, 0.6) * exp(-sd * 4.0) * 0.55
-                 + vec3(1.0, 0.98, 0.9) * smoothstep(0.048, 0.034, sd) * 1.4);
+  col += uSunOn * sunCol * (exp(-sd * 2.2) * 0.2 + exp(-sd * 7.0) * 0.35);
+  float ang = atan(p.y - uSun.y, p.x - uSun.x);
+  float rays = noise(vec2(ang * 9.0, uTime * 0.04)) * noise(vec2(ang * 23.0, -uTime * 0.03));
+  col += uSunOn * sunCol * rays * exp(-sd * 3.0) * 0.25;
+  col += uSunOn * (sunCol * exp(-sd * 22.0) * 0.9 + vec3(1.0, 0.99, 0.95) * smoothstep(0.032, 0.022, sd) * 1.6);
 
   if (y > 0.0) {
     float t = uTime;
@@ -81,11 +92,11 @@ void main() {
       vec2 toSun = normalize(sunW - w + vec2(0.0001)) * 0.08;
       float d2 = density(w + toSun, t);
       float light = clamp(0.5 + (d - d2) * 3.6, 0.0, 1.0);
-      vec3 c = mix(uShade, uLit, light);
+      vec3 c = mix(uShade, lit, light);
       c *= 1.0 - uDark * 0.5 * smoothstep(0.3, 1.0, d);   // thick = darker
       c *= 1.0 - 0.3 * smoothstep(0.25, 0.8, y);          // undersides overhead
-      c += uSunOn * vec3(1.0, 0.9, 0.72) * exp(-sd * 3.2) * (1.0 - d) * 0.6; // silver lining
-      c = mix(c, uHor, smoothstep(0.3, 0.0, y) * 0.7);    // distance haze
+      c += uSunOn * sunCol * exp(-sd * 3.2) * (1.0 - d) * 0.7; // silver lining
+      c = mix(c, hor, smoothstep(0.3, 0.0, y) * 0.7);     // distance haze
       float a = smoothstep(0.0, 0.2, d) * smoothstep(0.0, 0.12, y);
       col = mix(col, c, a);
     }
