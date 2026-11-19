@@ -32,8 +32,11 @@ Live data in Uzbek, Russian and English, with light and dark themes.
 ## Tech
 
 React 19 + Vite, plain CSS with design tokens, [Lucide](https://lucide.dev) icons, Inter Tight (Google Fonts).
-The sky is pure CSS gradients and animated layers, no images. White text on every sky was
-checked for WCAG AA contrast with a script.
+The clouds are drawn live with a small WebGL shader (`src/lib/cloudShader.js`, no libraries):
+perspective cloud layers made from fractal noise, lit by the sun, with darker undersides and haze
+toward the horizon. Coverage and darkness follow the weather. Rain, snow, fog, stars and the moon are
+CSS layers on top. It renders at reduced size, ~30 frames a second, stands still with "reduce motion",
+and falls back to a CSS sky if WebGL isn't available.
 
 ```
 src/
@@ -42,6 +45,7 @@ src/
     api.js                all network requests + data normalizing
     cache.js              forecast cache (fresh for 10 minutes)
     weatherCodes.js       WMO code → description key, icon, sky group
+    cloudShader.js        WebGL sky: shader code + the look of each weather type
     format.js             temperatures, compass points, UV levels, city time
   hooks/
     useWeather.js         load / cache / refresh / stale logic
