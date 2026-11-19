@@ -29,7 +29,8 @@
   position: relative;
   z-index: 1;
   color: var(--on-sky);
-  text-shadow: 0 1px 2px rgba(0, 10, 25, 0.18);
+  /* A soft halo keeps white text readable when a cloud drifts behind it. */
+  text-shadow: 0 1px 2px rgba(0, 10, 25, 0.3), 0 0 22px rgba(0, 10, 25, 0.22);
 }
 
 /* ---------- header ---------- */

@@ -84,29 +84,125 @@
   to { opacity: 0.55; }
 }
 
-/* ---------- clouds: soft blobs, in the lower part so text stays readable ---------- */
+/* ---------- clouds: real puffy shapes in two depths ----------
+   Each cloud is a rounded base plus two round "puffs" (::before, ::after), softly
+   blurred. Far clouds sit high, small and faint so the white text stays readable;
+   near clouds are big, low and brighter, forming a bank above the sheet.
+   Position, size and speed come from Sky.jsx as CSS variables. */
 
-.sky-cloud {
+.sky {
+  --cloud: #ffffff;
+  --cloud-shade: #dfe8f1;
+}
+.sky[data-group="overcast"] { --cloud: #dde3ea; --cloud-shade: #b9c3ce; }
+.sky[data-group="rain"]     { --cloud: #b9c4cf; --cloud-shade: #8f9cab; }
+.sky[data-group="storm"]    { --cloud: #6f7a8e; --cloud-shade: #4e586b; }
+.sky[data-group="snow"]     { --cloud: #eef3f8; --cloud-shade: #cdd8e3; }
+.sky[data-group="fog"]      { --cloud: #e3e8ec; --cloud-shade: #c4ccd3; }
+.sky[data-night]                         { --cloud: #56657e; --cloud-shade: #3c4860; }
+.sky[data-night][data-group="overcast"]  { --cloud: #3d4859; --cloud-shade: #2b3443; }
+.sky[data-night][data-group="rain"]      { --cloud: #34435a; --cloud-shade: #253144; }
+.sky[data-night][data-group="storm"]     { --cloud: #232c3d; --cloud-shade: #171e2b; }
+.sky[data-night][data-group="snow"]      { --cloud: #63728a; --cloud-shade: #48556b; }
+
+.cloud {
+  position: absolute;
+  top: var(--top);
+  left: 0;
+  width: var(--w);
+  height: calc(var(--w) * 0.3);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--cloud) 40%, var(--cloud-shade));
+  filter: blur(var(--blur, 3px));
+  opacity: var(--op, 0.8);
+  animation: cross var(--dur) linear infinite;
+  animation-delay: calc(var(--dur) * var(--start) * -1);
+  will-change: transform;
+}
+.cloud::before,
+.cloud::after {
+  content: "";
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0));
-  animation: drift 60s linear infinite alternate;
+  background: var(--cloud);
 }
-.sky[data-group="rain"] .sky-cloud,
-.sky[data-group="storm"] .sky-cloud,
-.sky[data-group="overcast"] .sky-cloud {
-  background: radial-gradient(closest-side, rgba(210, 220, 232, 0.4), rgba(210, 220, 232, 0));
+.cloud::before {
+  left: 16%;
+  bottom: 30%;
+  width: 46%;
+  aspect-ratio: 1;
 }
-.sky[data-night] .sky-cloud {
-  background: radial-gradient(closest-side, rgba(150, 170, 200, 0.26), rgba(150, 170, 200, 0));
+.cloud::after {
+  left: 48%;
+  bottom: 22%;
+  width: 34%;
+  aspect-ratio: 1;
 }
-/* A cloud bank low in the sky, just above where the sheet starts, below the text. */
-.sky-cloud-1 { width: 520px; height: 170px; top: 60vh; left: -12vw; }
-.sky-cloud-2 { width: 420px; height: 140px; top: 66vh; left: 42vw; animation-duration: 80s; animation-delay: -30s; }
-.sky-cloud-3 { width: 480px; height: 160px; top: 74vh; left: 8vw; animation-duration: 70s; animation-delay: -12s; }
-.sky-cloud-4 { width: 560px; height: 180px; top: 58vh; left: 60vw; animation-duration: 90s; animation-delay: -50s; }
-.sky-cloud-5 { width: 400px; height: 130px; top: 80vh; left: 58vw; animation-duration: 75s; animation-delay: -20s; }
-.sky-cloud-6 { width: 640px; height: 200px; top: 68vh; left: 20vw; animation-duration: 100s; animation-delay: -64s; }
+.cloud-far {
+  --blur: 5px;
+  --op: 0.3;
+}
+/* Near clouds are pushed below the reading (it is taller on phones), so they
+   form a bank just above the sheet and never sit behind small white text. */
+.cloud-near {
+  --blur: 2.5px;
+  --op: 0.82;
+  top: calc(var(--top) + 22vh);
+}
+@media (min-width: 768px) {
+  .cloud-near {
+    top: calc(var(--top) + 14vh);
+  }
+}
+/* Grey skies: clouds fill more of the view, still soft. */
+.sky[data-group="overcast"] .cloud-far,
+.sky[data-group="rain"] .cloud-far,
+.sky[data-group="storm"] .cloud-far {
+  --op: 0.5;
+}
+.sky[data-night] .cloud-near {
+  --op: 0.9;
+}
+@keyframes cross {
+  from { transform: translateX(calc(-1 * var(--w) - 40px)); }
+  to { transform: translateX(calc(100vw + 40px)); }
+}
+
+/* Slow-turning rays around the daytime sun. */
+.sky-sun::before {
+  content: "";
+  position: absolute;
+  inset: -70px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255, 238, 190, 0.16) 0 5deg, transparent 5deg 16deg);
+  -webkit-mask-image: radial-gradient(circle, #000 30%, transparent 70%);
+  mask-image: radial-gradient(circle, #000 30%, transparent 70%);
+  animation: rays 120s linear infinite;
+}
+@keyframes rays {
+  to { transform: rotate(360deg); }
+}
+
+/* A shooting star now and then on clear nights. */
+.sky-shoot {
+  position: absolute;
+  top: 10vh;
+  left: 55vw;
+  width: 120px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), #ffffff);
+  opacity: 0;
+  transform: rotate(-24deg);
+  animation: shoot 14s ease-out infinite;
+  animation-delay: 3s;
+}
+@keyframes shoot {
+  0%, 92% { opacity: 0; transform: rotate(-24deg) translateX(0); }
+  93% { opacity: 1; }
+  98%, 100% { opacity: 0; transform: rotate(-24deg) translateX(-260px); }
+}
+
 @media (min-width: 768px) {
   .sky-sun { top: 16vh; right: 12vw; }
   .sky-moon { top: 17vh; right: 15vw; }
@@ -128,9 +224,20 @@
   -webkit-mask-image: linear-gradient(180deg, transparent 18%, #000 60%);
   mask-image: linear-gradient(180deg, transparent 18%, #000 60%);
 }
+/* A thinner, slower rain layer behind, for depth. */
+.sky-rain-far {
+  opacity: 0.22;
+  background-image: repeating-linear-gradient(100deg, transparent 0 9px, rgba(255, 255, 255, 0.55) 9px 10px, transparent 10px 23px);
+  background-size: 100% 140px;
+  animation-duration: 1.4s;
+}
 .sky[data-group="storm"] .sky-rain {
   opacity: 0.6;
   animation-duration: 0.6s;
+}
+.sky[data-group="storm"] .sky-rain-far {
+  opacity: 0.3;
+  animation-duration: 1s;
 }
 @keyframes rain {
   to { background-position: -52px 200px; }
@@ -195,9 +302,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sky *,
+  .sky *:not(.cloud),
+  .sky *::before,
   .sky {
     animation: none !important;
+  }
+  /* Clouds stop where they are instead of jumping to one edge. */
+  .sky .cloud {
+    animation-duration: var(--dur) !important;
+    animation-iteration-count: infinite !important;
+    animation-play-state: paused !important;
+  }
+  .sky-shoot {
+    display: none;
   }
   .sky-flash {
     display: none;
